@@ -1,5 +1,5 @@
 // Google Sheets Web App URL - 請替換成你的 Google Apps Script Web App URL
-const GOOGLE_SHEET_URL = 'YOUR_GOOGLE_APPS_SCRIPT_WEB_APP_URL_HERE';
+const GOOGLE_SHEET_URL = 'https://script.google.com/macros/s/AKfycbywWHLwiUHksroTNQNuzUy0FapaE4L1BR-4V_QVhb3-o58ORQypr2aqvY81OJ4P5ud-/exec';
 
 let locationCounter = 0;
 let locations = [];
@@ -19,7 +19,7 @@ window.addEventListener('DOMContentLoaded', function() {
     // 獲取 URL 的第一個參數
     const urlParams = new URLSearchParams(window.location.search);
     const entries = [...urlParams.entries()];
-    
+
     if (entries.length > 0) {
         securityParam = entries[0][0];
         securityValue = entries[0][1];
@@ -397,16 +397,49 @@ async function handleSubmit(e) {
 
         const response = await fetch(urlWithSecurity, {
             method: 'POST',
-            mode: 'no-cors',
             headers: {
                 'Content-Type': 'application/json',
             },
             body: JSON.stringify(formData)
         });
 
-        // 因為使用 no-cors，無法取得回應狀態，假設成功
-        console.log('✓ 請求已發送（使用 no-cors 模式）');
-        console.log('回應狀態碼: ' + response.status);
+        // 嘗試解析回應
+        let result;
+        try {
+            result = await response.json();
+            console.log('伺服器回應:', result);
+        } catch (parseError) {
+            console.warn('無法解析回應，假設成功');
+            result = { status: 'success' };
+        }
+
+        // 檢查回應狀態
+        if (result.status === 'error') {
+            console.error('❌ 伺服器回傳錯誤:', result.message);
+            console.log('========== 送出失敗 ==========\n');
+            
+            // 重置提交狀態
+            isSubmitting = false;
+            submitBtn.disabled = false;
+            submitBtn.classList.remove('submitting');
+            submitBtn.textContent = '送出表單';
+            
+            // 根據錯誤代碼顯示不同訊息
+            if (result.code === 'SECURITY_FAILED') {
+                showError(
+                    '❌ 資安參數錯誤',
+                    '<strong>資安參數錯誤，請洽管理員</strong><br>您使用的網址可能不正確或已過期'
+                );
+            } else {
+                showError(
+                    '❌ 送出失敗',
+                    `<strong>錯誤訊息：</strong>${result.message || '未知錯誤'}`
+                );
+            }
+            return;
+        }
+
+        console.log('✓ 請求已發送');
         console.log('✓ 資料已成功提交到 Google Sheets');
         console.log('========== 提交完成 ==========\n');
 
@@ -442,14 +475,14 @@ async function handleSubmit(e) {
         // 檢查是否為安全參數錯誤
         let errorMessage = error.message;
         let securityError = false;
-        
+
         if (errorMessage.includes('SECURITY') || errorMessage.includes('資安')) {
             securityError = true;
         }
-        
+
         showError(
             securityError ? '❌ 資安參數錯誤' : '❌ 送出失敗',
-            securityError ? 
+            securityError ?
                 '<strong>資安參數錯誤，請洽管理員</strong>' :
                 `<strong>錯誤訊息：</strong><br>${error.message}<br><br>` +
                 `<strong>可能原因：</strong><br>` +
