@@ -1,5 +1,5 @@
 // Google Sheets Web App URL - 請替換成你的 Google Apps Script Web App URL
-const GOOGLE_SHEET_URL = 'https://script.google.com/macros/s/AKfycbzwqfih7NSHZIEjDHa8A8oIm4PaVeSrIM2bAO8SwtKxpq2DMljGIE7l3s3VlHJr0ZX4/exec';
+const GOOGLE_SHEET_URL = 'https://script.google.com/macros/s/AKfycbxzqDFHnekfjEl6IaM9I_I2aXDWpmO1I--pMFAm_qIFkcyW-CLtKtrTPYhFP1MBYjm4/exec';
 
 let locationCounter = 0;
 let locations = [];
@@ -213,7 +213,7 @@ async function handleSubmit(e) {
 
     // Hide previous messages
     hideAllMessages();
-    
+
     console.log('========== 開始提交表單 ==========');
     console.log('時間: ' + new Date().toLocaleString('zh-TW', { timeZone: 'Asia/Taipei' }));
 
@@ -242,14 +242,14 @@ async function handleSubmit(e) {
     // 驗證燈泡種類
     const bulbTypeRadios = document.querySelectorAll('input[name="bulbType"]');
     let bulbType = null;
-    
+
     for (let radio of bulbTypeRadios) {
         if (radio.checked) {
             bulbType = radio.value;
             break;
         }
     }
-    
+
     if (!bulbType) {
         console.error('❌ 燈泡種類未選擇');
         showError('❌ 必填欄位未完成', '<strong>燈泡種類</strong> - 請選擇燈泡種類（一般燈 或 感應燈）');
@@ -276,12 +276,12 @@ async function handleSubmit(e) {
                 validationErrors.push(`位置 ${index + 1}: 未選擇區域分類`);
                 return;
             }
-            
+
             if (!location) {
                 validationErrors.push(`位置 ${index + 1}: 未選擇詳細位置`);
                 return;
             }
-            
+
             if (!quantity || parseInt(quantity) < 1) {
                 validationErrors.push(`位置 ${index + 1}: 數量必須大於 0`);
                 return;
@@ -298,8 +298,8 @@ async function handleSubmit(e) {
     // 檢查驗證錯誤
     if (validationErrors.length > 0) {
         console.error('❌ 位置資訊驗證失敗:', validationErrors);
-        const errorHtml = '<strong>位置欄位有誤：</strong><ul style="margin: 8px 0 0 20px;">' + 
-                          validationErrors.map(e => '<li>' + e + '</li>').join('') + 
+        const errorHtml = '<strong>位置欄位有誤：</strong><ul style="margin: 8px 0 0 20px;">' +
+                          validationErrors.map(e => '<li>' + e + '</li>').join('') +
                           '</ul>';
         showError('❌ 必填欄位未完成', errorHtml);
         return;
@@ -352,7 +352,10 @@ async function handleSubmit(e) {
         console.log('Google Apps Script URL: ' + GOOGLE_SHEET_URL);
         console.log('開始發送請求...');
 
-        const response = await fetch(GOOGLE_SHEET_URL, {
+        // 建立帶有安全參數的 URL
+        const urlWithParams = GOOGLE_SHEET_URL + '?check_code=dfsh_bulb';
+        
+        const response = await fetch(urlWithParams, {
             method: 'POST',
             mode: 'no-cors',
             headers: {
@@ -371,7 +374,7 @@ async function handleSubmit(e) {
         submitBtn.classList.remove('submitting');
         submitBtn.classList.add('btn-success');
         submitBtn.textContent = '✓ 已送出';
-        
+
         showSuccess('✓ 登記成功！資料已送出');
 
         // 3 秒後重置表單
@@ -389,21 +392,31 @@ async function handleSubmit(e) {
         console.error('❌ 提交失敗: ' + error.toString());
         console.error('錯誤堆疊:', error.stack);
         console.log('========== 提交失敗 ==========\n');
-        
+
         // 重置提交狀態
         isSubmitting = false;
         submitBtn.disabled = false;
         submitBtn.classList.remove('submitting');
         submitBtn.textContent = '送出表單';
+
+        // 檢查是否為安全參數錯誤
+        let errorMessage = error.message;
+        let securityError = false;
+        
+        if (errorMessage.includes('SECURITY') || errorMessage.includes('資安')) {
+            securityError = true;
+        }
         
         showError(
-            '❌ 送出失敗',
-            `<strong>錯誤訊息：</strong><br>${error.message}<br><br>` +
-            `<strong>可能原因：</strong><br>` +
-            `• Google Apps Script URL 設定不正確<br>` +
-            `• Google Apps Script 未正確部署<br>` +
-            `• 網路連線中斷<br><br>` +
-            `請打開瀏覽器開發者工具 (F12) 的 Console 查看詳細錯誤訊息`
+            securityError ? '❌ 資安參數錯誤' : '❌ 送出失敗',
+            securityError ? 
+                '<strong>資安參數錯誤，請洽管理員</strong>' :
+                `<strong>錯誤訊息：</strong><br>${error.message}<br><br>` +
+                `<strong>可能原因：</strong><br>` +
+                `• Google Apps Script URL 設定不正確<br>` +
+                `• Google Apps Script 未正確部署<br>` +
+                `• 網路連線中斷<br><br>` +
+                `請打開瀏覽器開發者工具 (F12) 的 Console 查看詳細錯誤訊息`
         );
     }
 }
