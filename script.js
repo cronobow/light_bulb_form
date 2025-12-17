@@ -1,5 +1,5 @@
 // Google Sheets Web App URL - 請替換成你的 Google Apps Script Web App URL
-const GOOGLE_SHEET_URL = 'https://script.google.com/macros/s/AKfycbwHF57JzhPwPK9zpzrs1NSt5exGuzxvpqhVawBixMrZo3ltnypA5KKLQi8DbIBIO3Yf/exec';
+const GOOGLE_SHEET_URL = 'https://script.google.com/macros/s/AKfycbyd4JQEt4okjlZpDA55IPCHwCvgArXqx8k2_G2EgUVX3Q-E4a2N-cweqGKf10w6tp-l/exec';
 
 let locationCounter = 0;
 let locations = [];
