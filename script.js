@@ -233,13 +233,22 @@ async function handleSubmit(e) {
     }
     console.log('領用人: ' + requester);
 
-    const bulbTypeRadio = document.querySelector('input[name="bulbType"]:checked');
-    if (!bulbTypeRadio) {
+    // 驗證燈泡種類
+    const bulbTypeRadios = document.querySelectorAll('input[name="bulbType"]');
+    let bulbType = null;
+    
+    for (let radio of bulbTypeRadios) {
+        if (radio.checked) {
+            bulbType = radio.value;
+            break;
+        }
+    }
+    
+    if (!bulbType) {
         console.error('❌ 燈泡種類未選擇');
-        showError('❌ 必填欄位未完成', '<strong>燈泡種類</strong> - 請選擇燈泡種類（一般燈/感應燈）');
+        showError('❌ 必填欄位未完成', '<strong>燈泡種類</strong> - 請選擇燈泡種類（一般燈 或 感應燈）');
         return;
     }
-    const bulbType = bulbTypeRadio.value;
     console.log('燈泡種類: ' + bulbType);
 
     // Get all locations data
