@@ -43,3 +43,4 @@ yarn-error.log*
 
 # Google Apps Script - 包含敏感安全參數
 Code.gs
+CODE_GS_SETUP.md

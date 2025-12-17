@@ -1,11 +1,33 @@
 // Google Sheets Web App URL - 請替換成你的 Google Apps Script Web App URL
-// ⚠️ 重要：請在此 URL 後面加上 ?check_code=你的安全碼
-// 安全碼請向管理員索取，不要公開在任何地方
-const GOOGLE_SHEET_URL = 'https://script.google.com/macros/s/AKfycbxzqDFHnekfjEl6IaM9I_I2aXDWpmO1I--pMFAm_qIFkcyW-CLtKtrTPYhFP1MBYjm4/exec?check_code=YOUR_SECURITY_CODE_HERE';
+const GOOGLE_SHEET_URL = 'YOUR_GOOGLE_APPS_SCRIPT_WEB_APP_URL_HERE';
 
 let locationCounter = 0;
 let locations = [];
 let isSubmitting = false; // 防抖標記
+
+// 從 URL 獲取參數
+function getUrlParameter(name) {
+    const urlParams = new URLSearchParams(window.location.search);
+    return urlParams.get(name);
+}
+
+// 頁面載入時檢查安全參數
+let securityParam = null;
+let securityValue = null;
+
+window.addEventListener('DOMContentLoaded', function() {
+    // 獲取 URL 的第一個參數
+    const urlParams = new URLSearchParams(window.location.search);
+    const entries = [...urlParams.entries()];
+    
+    if (entries.length > 0) {
+        securityParam = entries[0][0];
+        securityValue = entries[0][1];
+        console.log('✓ 已獲取 URL 參數');
+    } else {
+        console.warn('⚠️ URL 中沒有參數');
+    }
+});
 
 // DOM Elements
 const requesterSelect = document.getElementById('requester');
@@ -351,11 +373,29 @@ async function handleSubmit(e) {
             return;
         }
 
+        // 檢查 URL 參數
+        if (!securityParam || !securityValue) {
+            console.error('❌ 缺少安全參數');
+            showError(
+                '❌ 存取被拒絕',
+                '<strong>請使用正確的網址存取此表單</strong><br>請向管理員索取正確的表單連結'
+            );
+            // 重置提交狀態
+            isSubmitting = false;
+            submitBtn.disabled = false;
+            submitBtn.classList.remove('submitting');
+            submitBtn.textContent = '送出表單';
+            return;
+        }
+
         console.log('Google Apps Script URL: ' + GOOGLE_SHEET_URL);
+        console.log('安全參數已準備');
         console.log('開始發送請求...');
 
-        // 直接使用包含安全參數的完整 URL
-        const response = await fetch(GOOGLE_SHEET_URL, {
+        // 將安全參數附加到 URL
+        const urlWithSecurity = `${GOOGLE_SHEET_URL}?${securityParam}=${encodeURIComponent(securityValue)}`;
+
+        const response = await fetch(urlWithSecurity, {
             method: 'POST',
             mode: 'no-cors',
             headers: {

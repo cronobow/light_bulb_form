@@ -1,69 +1,42 @@
 // Google Apps Script 後端程式碼 - 模板版本
 // ⚠️ 此為模板文件，實際的 Code.gs 已在 .gitignore 中以保護敏感的安全參數
 
-// ⚠️ 重要：實際使用時，Code.gs 應包含：
-// 1. const SECURITY_CHECK_CODE = '你的實際安全碼'; （不要推送到 repo）
-// 2. verifySecurityCode() 函數用於驗證檢查碼
-// 3. 在 doPost() 開始時驗證安全參數
+// ⚠️⚠️⚠️ 請參考 CODE_GS_SETUP.md 獲取完整的設定指南 ⚠️⚠️⚠️
+
+// 實際使用時需要在 Code.gs 中設定：
+// 1. SECURITY_PARAM_NAME - URL 參數的名稱
+// 2. SECURITY_PARAM_VALUE - URL 參數的值
+// 3. verifySecurityParams() - 驗證函數（檢查參數名稱和值）
 
 // 範例結構（不要使用這裡的示例值）：
-// const SECURITY_CHECK_CODE = 'YOUR_ACTUAL_SECURITY_CODE_HERE';
+// const SECURITY_PARAM_NAME = 'YOUR_PARAM_NAME';
+// const SECURITY_PARAM_VALUE = 'YOUR_PARAM_VALUE';
 //
-// function verifySecurityCode(checkCode) {
-//   return checkCode === SECURITY_CHECK_CODE;
+// function verifySecurityParams(params) {
+//   return params.hasOwnProperty(SECURITY_PARAM_NAME) && 
+//          params[SECURITY_PARAM_NAME] === SECURITY_PARAM_VALUE;
 // }
 
 function testWrite() {
-  try {
-    Logger.log('========== 測試寫入功能 ==========');
-    const ss = SpreadsheetApp.getActiveSpreadsheet();
-    Logger.log('試算表: ' + ss.getName());
-    
-    let sheet = ss.getSheetByName('燈泡使用登記表');
-    if (!sheet) {
-      Logger.log('建立新工作表...');
-      sheet = ss.insertSheet('燈泡使用登記表');
-      sheet.appendRow(['時間', '領用人', '燈泡種類', '區域分類', '詳細位置', '數量', '總計']);
-      
-      // 設定欄寬
-      const columnWidths = [160, 120, 100, 100, 150, 80, 80];
-      for (let i = 0; i < columnWidths.length; i++) {
-        sheet.setColumnWidth(i + 1, columnWidths[i]);
-      }
-    }
-    
-    // 寫入測試資料
-    const testRow = [
-      new Date().toLocaleString('zh-TW', { timeZone: 'Asia/Taipei' }),
-      '測試用',
-      '一般燈',
-      '公共區域',
-      '警衛室備用',
-      '5',
-      '5'
-    ];
-    sheet.appendRow(testRow);
-    Logger.log('✓ 測試資料已寫入');
-    Logger.log('========== 測試完成 ==========');
-  } catch (error) {
-    Logger.log('❌ 錯誤: ' + error.toString());
-  }
+  // 測試函數用於本地測試寫入功能
+  // 完整程式碼請參考 CODE_GS_SETUP.md
 }
 
-// 提示：doPost(e) 函數應該：
-// 1. 先驗證 e.parameter.check_code
-// 2. 如果驗證失敗，立即回傳錯誤（包含 code: 'SECURITY_FAILED'）
-// 3. 然後解析 e.postData.contents 取得表單資料
-// 4. 進行資料驗證
-// 5. 寫入 Google Sheets
-// 6. 回傳成功訊息
+function doPost(e) {
+  // 主函數 - 接收 POST 請求
+  // 
+  // 第一步：驗證安全參數（雙重驗證）
+  //   1. 檢查參數名稱是否正確
+  //   2. 檢查參數值是否正確
+  //
+  // 完整程式碼請參考 CODE_GS_SETUP.md
+}
 
 function doGet(e) {
-  return ContentService.createTextOutput('燈泡使用登記表系統 API - 需要安全參數才能提交資料');
+  return ContentService.createTextOutput('燈泡使用登記表系統 API - 需要正確的 URL 參數才能提交資料');
 }
 
 function createSummarySheet() {
-  Logger.log('此函數用於建立統計報表');
-  // 實作省略，請參考完整的 Code.gs
-  // 記得也要在這裡設定適當的欄寬
+  // 建立統計報表
+  // 完整程式碼請參考 CODE_GS_SETUP.md
 }
