@@ -116,20 +116,21 @@ select:focus {
 
 .button-content {
     display: flex;
-    flex-direction: column;
+    flex-direction: row;
     align-items: center;
     justify-content: center;
-    padding: 18px 15px;
+    gap: 10px;
+    padding: 15px 20px;
     border: 3px solid #ddd;
     border-radius: 10px;
     background: white;
     transition: all 0.3s ease;
-    min-height: 90px;
+    min-height: 60px;
 }
 
 .button-icon {
-    font-size: 36px;
-    margin-bottom: 8px;
+    font-size: 28px;
+    margin-bottom: 0;
     transition: transform 0.3s ease;
 }
 
@@ -138,6 +139,7 @@ select:focus {
     font-weight: 600;
     color: #555;
     transition: color 0.3s ease;
+    white-space: nowrap;
 }
 
 .bulb-type-button:hover .button-content {
@@ -311,11 +313,12 @@ select:focus {
     }
 
     .button-content {
-        min-height: 80px;
+        min-height: 55px;
+        padding: 12px 15px;
     }
 
     .button-icon {
-        font-size: 32px;
+        font-size: 24px;
     }
 
     .button-text {
