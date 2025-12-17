@@ -308,7 +308,7 @@ select:focus {
         flex-direction: column;
     }
 
-    .bulb-type-buttons {
+    .form-actions {
         flex-direction: column;
     }
 
