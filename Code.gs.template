@@ -2,13 +2,16 @@
 // ⚠️ 此為模板文件，實際的 Code.gs 已在 .gitignore 中以保護敏感的安全參數
 
 // ⚠️ 重要：實際使用時，Code.gs 應包含：
-// 1. SECURITY_CHECK_CODE 常數（不要推送到公開 repo）
+// 1. const SECURITY_CHECK_CODE = '你的實際安全碼'; （不要推送到 repo）
 // 2. verifySecurityCode() 函數用於驗證檢查碼
 // 3. 在 doPost() 開始時驗證安全參數
 
-// 安全參數應為：check_code=dfsh_bulb（示例）
-
-// 本文件用於說明 Code.gs 的結構，實際檔案請保持在本地 Google Apps Script 編輯器中
+// 範例結構（不要使用這裡的示例值）：
+// const SECURITY_CHECK_CODE = 'YOUR_ACTUAL_SECURITY_CODE_HERE';
+//
+// function verifySecurityCode(checkCode) {
+//   return checkCode === SECURITY_CHECK_CODE;
+// }
 
 function testWrite() {
   try {
@@ -49,7 +52,7 @@ function testWrite() {
 
 // 提示：doPost(e) 函數應該：
 // 1. 先驗證 e.parameter.check_code
-// 2. 如果驗證失敗，立即回傳錯誤
+// 2. 如果驗證失敗，立即回傳錯誤（包含 code: 'SECURITY_FAILED'）
 // 3. 然後解析 e.postData.contents 取得表單資料
 // 4. 進行資料驗證
 // 5. 寫入 Google Sheets
@@ -62,4 +65,5 @@ function doGet(e) {
 function createSummarySheet() {
   Logger.log('此函數用於建立統計報表');
   // 實作省略，請參考完整的 Code.gs
+  // 記得也要在這裡設定適當的欄寬
 }

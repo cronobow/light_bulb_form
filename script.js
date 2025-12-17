@@ -1,5 +1,7 @@
 // Google Sheets Web App URL - 請替換成你的 Google Apps Script Web App URL
-const GOOGLE_SHEET_URL = 'https://script.google.com/macros/s/AKfycbxzqDFHnekfjEl6IaM9I_I2aXDWpmO1I--pMFAm_qIFkcyW-CLtKtrTPYhFP1MBYjm4/exec';
+// ⚠️ 重要：請在此 URL 後面加上 ?check_code=你的安全碼
+// 安全碼請向管理員索取，不要公開在任何地方
+const GOOGLE_SHEET_URL = 'https://script.google.com/macros/s/AKfycbxzqDFHnekfjEl6IaM9I_I2aXDWpmO1I--pMFAm_qIFkcyW-CLtKtrTPYhFP1MBYjm4/exec?check_code=YOUR_SECURITY_CODE_HERE';
 
 let locationCounter = 0;
 let locations = [];
@@ -352,10 +354,8 @@ async function handleSubmit(e) {
         console.log('Google Apps Script URL: ' + GOOGLE_SHEET_URL);
         console.log('開始發送請求...');
 
-        // 建立帶有安全參數的 URL
-        const urlWithParams = GOOGLE_SHEET_URL + '?check_code=dfsh_bulb';
-        
-        const response = await fetch(urlWithParams, {
+        // 直接使用包含安全參數的完整 URL
+        const response = await fetch(GOOGLE_SHEET_URL, {
             method: 'POST',
             mode: 'no-cors',
             headers: {
