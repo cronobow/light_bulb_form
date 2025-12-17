@@ -1,114 +1,163 @@
-// Google Apps Script 後端程式碼
+// Google Apps Script 後端程式碼 - 簡化測試版本
 // 用於接收表單資料並寫入 Google Sheets
 
+// 簡單的測試函數 - 直接在 Apps Script 編輯器執行
+function testWrite() {
+  try {
+    Logger.log('========== 測試寫入功能 ==========');
+    const ss = SpreadsheetApp.getActiveSpreadsheet();
+    Logger.log('試算表: ' + ss.getName());
+    
+    let sheet = ss.getSheetByName('燈泡使用登記表');
+    if (!sheet) {
+      Logger.log('建立新工作表...');
+      sheet = ss.insertSheet('燈泡使用登記表');
+      sheet.appendRow(['時間', '領用人', '燈泡種類', '區域分類', '詳細位置', '數量', '總計']);
+    }
+    
+    // 寫入測試資料
+    const testRow = [
+      new Date().toLocaleString('zh-TW', { timeZone: 'Asia/Taipei' }),
+      '測試用',
+      '一般燈',
+      '公共區域',
+      '警衛室備用',
+      '5',
+      '5'
+    ];
+    sheet.appendRow(testRow);
+    Logger.log('✓ 測試資料已寫入');
+    Logger.log('========== 測試完成 ==========');
+  } catch (error) {
+    Logger.log('❌ 錯誤: ' + error.toString());
+  }
+}
+
+// 主函數 - 接收 POST 請求
 function doPost(e) {
   try {
-    // 解析接收到的資料
-    const data = JSON.parse(e.postData.contents);
-    
-    // 詳細除錯日誌
     Logger.log('========== 開始處理表單提交 ==========');
-    Logger.log('時間戳記: ' + new Date().toLocaleString('zh-TW', { timeZone: 'Asia/Taipei' }));
-    Logger.log('接收到的原始資料: ' + JSON.stringify(data));
-    Logger.log('領用人: ' + data.requester);
-    Logger.log('燈泡種類: ' + data.bulbType);
-    Logger.log('位置數量: ' + (data.locations ? data.locations.length : '未定義'));
-    Logger.log('總計: ' + data.totalQuantity);
+    Logger.log('時間: ' + new Date().toLocaleString('zh-TW', { timeZone: 'Asia/Taipei' }));
+    
+    // 解析接收到的資料
+    let data;
+    try {
+      data = JSON.parse(e.postData.contents);
+      Logger.log('✓ JSON 解析成功');
+    } catch (parseError) {
+      Logger.log('❌ JSON 解析失敗: ' + parseError.toString());
+      Logger.log('原始資料: ' + e.postData.contents);
+      return ContentService.createTextOutput(JSON.stringify({
+        status: 'error',
+        message: 'JSON 格式錯誤: ' + parseError.toString()
+      })).setMimeType(ContentService.MimeType.JSON);
+    }
+    
+    Logger.log('接收到的資料:');
+    Logger.log('  領用人: ' + data.requester);
+    Logger.log('  燈泡種類: ' + data.bulbType);
+    Logger.log('  位置數量: ' + (data.locations ? data.locations.length : '0'));
+    Logger.log('  總計: ' + data.totalQuantity);
 
     // 取得試算表
     const ss = SpreadsheetApp.getActiveSpreadsheet();
-    Logger.log('試算表ID: ' + ss.getId());
-    Logger.log('試算表名稱: ' + ss.getName());
+    Logger.log('試算表: ' + ss.getName());
     
+    // 取得或建立工作表
     let sheet = ss.getSheetByName('燈泡使用登記表');
-    Logger.log('尋找工作表: 燈泡使用登記表');
-
-    // 如果工作表不存在，建立新的
     if (!sheet) {
-      Logger.log('工作表不存在，正在建立新工作表...');
+      Logger.log('工作表不存在，正在建立...');
       sheet = ss.insertSheet('燈泡使用登記表');
-      // 建立標題列
       sheet.appendRow(['時間', '領用人', '燈泡種類', '區域分類', '詳細位置', '數量', '總計']);
       sheet.getRange('A1:G1').setFontWeight('bold').setBackground('#4285f4').setFontColor('#ffffff');
       sheet.setFrozenRows(1);
-      Logger.log('新工作表已建立');
-    } else {
-      Logger.log('工作表已存在，當前行數: ' + sheet.getLastRow());
+      Logger.log('✓ 新工作表已建立');
     }
 
-    // 資料驗證
+    // 基本驗證
     if (!data.requester || !data.bulbType || !data.locations || data.locations.length === 0) {
-      Logger.log('❌ 資料驗證失敗 - 資料不完整');
-      Logger.log('requester: ' + data.requester);
-      Logger.log('bulbType: ' + data.bulbType);
-      Logger.log('locations: ' + JSON.stringify(data.locations));
-      
+      Logger.log('❌ 資料驗證失敗');
       return ContentService.createTextOutput(JSON.stringify({
         status: 'error',
         message: '資料不完整'
       })).setMimeType(ContentService.MimeType.JSON);
     }
 
-    Logger.log('✓ 資料驗證通過');
-
-    // 驗證位置資訊
-    Logger.log('開始驗證位置資訊...');
+    // 驗證每個位置
     for (let i = 0; i < data.locations.length; i++) {
-      let location = data.locations[i];
-      Logger.log(`位置 ${i + 1}: category="${location.category}", location="${location.location}", quantity=${location.quantity}`);
-      
-      if (!location.category || !location.location || !location.quantity || location.quantity < 1) {
-        Logger.log(`❌ 位置 ${i + 1} 驗證失敗`);
+      const loc = data.locations[i];
+      if (!loc.category || !loc.location || !loc.quantity) {
+        Logger.log('❌ 位置 ' + (i + 1) + ' 資料不完整');
         return ContentService.createTextOutput(JSON.stringify({
           status: 'error',
-          message: '位置或數量資料不正確'
+          message: '位置資料不完整'
         })).setMimeType(ContentService.MimeType.JSON);
       }
     }
-    Logger.log('✓ 所有位置資訊驗證通過');
 
-    // 將每個位置作為一筆記錄寫入
-    Logger.log('開始寫入資料到試算表...');
+    // 寫入資料
+    Logger.log('開始寫入資料...');
+    let writeCount = 0;
     data.locations.forEach((location, index) => {
-      const newRow = [
-        data.timestamp,
-        data.requester,
-        data.bulbType,
-        location.category,
-        location.location,
-        location.quantity,
-        data.totalQuantity
-      ];
-      
-      Logger.log(`寫入第 ${index + 1} 筆: [${newRow.join(', ')}]`);
-      sheet.appendRow(newRow);
+      try {
+        const row = [
+          data.timestamp,
+          data.requester,
+          data.bulbType,
+          location.category,
+          location.location,
+          location.quantity,
+          data.totalQuantity
+        ];
+        sheet.appendRow(row);
+        Logger.log('✓ 第 ' + (index + 1) + ' 筆資料已寫入');
+        writeCount++;
+      } catch (writeError) {
+        Logger.log('❌ 第 ' + (index + 1) + ' 筆寫入失敗: ' + writeError.toString());
+      }
     });
 
-    Logger.log(`✓ 成功寫入 ${data.locations.length} 筆記錄`);
-
     // 自動調整欄寬
-    sheet.autoResizeColumns(1, 7);
-    Logger.log('已調整欄寬');
+    try {
+      sheet.autoResizeColumns(1, 7);
+      Logger.log('✓ 欄寬已調整');
+    } catch (e) {
+      Logger.log('⚠️ 欄寬調整失敗（非關鍵）: ' + e.toString());
+    }
 
-    Logger.log('========== 提交完成 ==========\n');
+    Logger.log('✓ 成功寫入 ' + writeCount + ' 筆記錄');
+    Logger.log('========== 提交完成 ==========');
 
-    // 回傳成功訊息
     return ContentService.createTextOutput(JSON.stringify({
       status: 'success',
-      message: '資料已成功儲存'
+      message: '資料已成功儲存 - 共 ' + writeCount + ' 筆',
+      count: writeCount
     })).setMimeType(ContentService.MimeType.JSON);
 
   } catch (error) {
-    // 錯誤處理
     Logger.log('========== ❌ 發生錯誤 ==========');
     Logger.log('錯誤訊息: ' + error.toString());
-    Logger.log('錯誤堆疊: ' + error.stack);
-    Logger.log('========== 錯誤處理結束 ==========\n');
+    Logger.log('錯誤行號: ' + error.lineNumber);
+    Logger.log('========== 錯誤處理結束 ==========');
     
     return ContentService.createTextOutput(JSON.stringify({
       status: 'error',
-      message: '伺服器錯誤：' + error.toString()
+      message: '伺服器錯誤: ' + error.toString()
     })).setMimeType(ContentService.MimeType.JSON);
+  }
+}
+
+// GET 測試函數
+function doGet(e) {
+  try {
+    Logger.log('GET 請求已接收');
+    return ContentService.createTextOutput(JSON.stringify({
+      status: 'ok',
+      message: 'Google Apps Script 已正確部署',
+      time: new Date().toLocaleString('zh-TW', { timeZone: 'Asia/Taipei' })
+    })).setMimeType(ContentService.MimeType.JSON);
+  } catch (error) {
+    return ContentService.createTextOutput('錯誤: ' + error.toString());
   }
 }
 
