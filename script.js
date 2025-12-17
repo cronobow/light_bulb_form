@@ -36,6 +36,20 @@ addLocationBtn.addEventListener('click', addLocation);
 resetBtn.addEventListener('click', resetForm);
 form.addEventListener('submit', handleSubmit);
 
+// 位置分類的對應選項
+const locationOptions = {
+    '公共區域': [
+        '警衛室備用',
+        '地下室 B1',
+        '地下室 B2',
+        '地下室 B3',
+        '中庭與1F公設',
+        '頂樓空中花園'
+    ],
+    'A棟': Array.from({ length: 28 }, (_, i) => `A棟${i + 1}樓`),
+    'B棟': Array.from({ length: 28 }, (_, i) => `B棟${i + 1}樓`)
+};
+
 // Add new location
 function addLocation() {
     locationCounter++;
@@ -51,8 +65,19 @@ function addLocation() {
         </div>
         <div class="location-fields">
             <div class="form-group">
-                <label for="${locationId}-location">使用位置 *</label>
-                <input type="text" id="${locationId}-location" name="location" required placeholder="例：辦公室、倉庫、走廊">
+                <label for="${locationId}-category">區域分類 *</label>
+                <select id="${locationId}-category" name="category" required onchange="updateLocationOptions('${locationId}')">
+                    <option value="">請選擇</option>
+                    <option value="公共區域">公共區域</option>
+                    <option value="A棟">A棟</option>
+                    <option value="B棟">B棟</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="${locationId}-location">詳細位置 *</label>
+                <select id="${locationId}-location" name="location" required onchange="updateTotal()">
+                    <option value="">請先選擇區域分類</option>
+                </select>
             </div>
             <div class="form-group">
                 <label for="${locationId}-quantity">數量 *</label>
@@ -63,6 +88,41 @@ function addLocation() {
     
     locationsList.appendChild(locationItem);
     locations.push(locationId);
+    updateTotal();
+}
+
+// Update location options based on category selection
+function updateLocationOptions(locationId) {
+    const categorySelect = document.getElementById(`${locationId}-category`);
+    const locationSelect = document.getElementById(`${locationId}-location`);
+    const selectedCategory = categorySelect.value;
+    
+    // Clear previous options
+    locationSelect.innerHTML = '';
+    
+    if (!selectedCategory) {
+        locationSelect.innerHTML = '<option value="">請先選擇區域分類</option>';
+        locationSelect.disabled = true;
+        return;
+    }
+    
+    locationSelect.disabled = false;
+    
+    // Get options for selected category
+    const options = locationOptions[selectedCategory] || [];
+    
+    options.forEach(option => {
+        const optionElement = document.createElement('option');
+        optionElement.value = option;
+        optionElement.textContent = option;
+        locationSelect.appendChild(optionElement);
+    });
+    
+    // Auto select first option
+    if (options.length > 0) {
+        locationSelect.value = options[0];
+    }
+    
     updateTotal();
 }
 
@@ -136,12 +196,22 @@ async function handleSubmit(e) {
     const locationItems = document.querySelectorAll('.location-item');
     
     locationItems.forEach(item => {
-        const locationInput = item.querySelector('input[name="location"]');
+        const categorySelect = item.querySelector('select[name="category"]');
+        const locationSelect = item.querySelector('select[name="location"]');
         const quantityInput = item.querySelector('input[name="quantity"]');
         
-        if (locationInput && quantityInput) {
+        if (categorySelect && locationSelect && quantityInput) {
+            const category = categorySelect.value;
+            const location = locationSelect.value;
+            
+            if (!category || !location) {
+                alert('請完整填寫所有位置資訊');
+                return;
+            }
+            
             locationsData.push({
-                location: locationInput.value,
+                category: category,
+                location: location,
                 quantity: parseInt(quantityInput.value) || 0
             });
         }
