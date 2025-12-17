@@ -5,6 +5,9 @@ let locationCounter = 0;
 let locations = [];
 
 // DOM Elements
+const requesterRadios = document.querySelectorAll('input[name="requester"]');
+const requesterNameGroup = document.getElementById('requesterNameGroup');
+const requesterNameInput = document.getElementById('requesterName');
 const bulbTypeSelect = document.getElementById('bulbType');
 const otherBulbTypeGroup = document.getElementById('otherBulbTypeGroup');
 const locationsList = document.getElementById('locationsList');
@@ -19,6 +22,19 @@ const errorMessage = document.getElementById('errorMessage');
 addLocation();
 
 // Event Listeners
+requesterRadios.forEach(radio => {
+    radio.addEventListener('change', function() {
+        if (this.value === '保全員' || this.value === '機電廠商' || this.value === '其他') {
+            requesterNameGroup.style.display = 'block';
+            requesterNameInput.required = true;
+        } else {
+            requesterNameGroup.style.display = 'none';
+            requesterNameInput.required = false;
+            requesterNameInput.value = '';
+        }
+    });
+});
+
 bulbTypeSelect.addEventListener('change', function() {
     if (this.value === '其他') {
         otherBulbTypeGroup.style.display = 'block';
@@ -103,7 +119,25 @@ async function handleSubmit(e) {
     errorMessage.style.display = 'none';
     
     // Get form data
-    const requester = document.getElementById('requester').value;
+    const requesterRadio = document.querySelector('input[name="requester"]:checked');
+    if (!requesterRadio) {
+        alert('請選擇領用人');
+        return;
+    }
+    
+    let requester = requesterRadio.value;
+    
+    // 如果選擇保全員、機電廠商或其他，使用輸入的姓名
+    if (requester === '保全員' || requester === '機電廠商' || requester === '其他') {
+        const requesterName = requesterNameInput.value.trim();
+        if (!requesterName) {
+            alert('請填寫領用人姓名');
+            requesterNameInput.focus();
+            return;
+        }
+        requester = `${requester}-${requesterName}`;
+    }
+    
     let bulbType = bulbTypeSelect.value;
     
     if (bulbType === '其他') {
@@ -176,6 +210,8 @@ async function handleSubmit(e) {
 // Reset form
 function resetForm() {
     form.reset();
+    requesterNameGroup.style.display = 'none';
+    requesterNameInput.required = false;
     otherBulbTypeGroup.style.display = 'none';
     
     // Clear all locations
