@@ -13,6 +13,12 @@ function testWrite() {
       Logger.log('建立新工作表...');
       sheet = ss.insertSheet('燈泡使用登記表');
       sheet.appendRow(['時間', '領用人', '燈泡種類', '區域分類', '詳細位置', '數量', '總計']);
+      
+      // 設定欄寬
+      const columnWidths = [160, 120, 100, 100, 150, 80, 80];
+      for (let i = 0; i < columnWidths.length; i++) {
+        sheet.setColumnWidth(i + 1, columnWidths[i]);
+      }
     }
     
     // 寫入測試資料
@@ -71,6 +77,13 @@ function doPost(e) {
       sheet.appendRow(['時間', '領用人', '燈泡種類', '區域分類', '詳細位置', '數量', '總計']);
       sheet.getRange('A1:G1').setFontWeight('bold').setBackground('#4285f4').setFontColor('#ffffff');
       sheet.setFrozenRows(1);
+      
+      // 設定欄寬
+      const columnWidths = [160, 120, 100, 100, 150, 80, 80];
+      for (let i = 0; i < columnWidths.length; i++) {
+        sheet.setColumnWidth(i + 1, columnWidths[i]);
+      }
+      
       Logger.log('✓ 新工作表已建立');
     }
 
@@ -119,10 +132,16 @@ function doPost(e) {
 
     // 自動調整欄寬
     try {
-      sheet.autoResizeColumns(1, 7);
-      Logger.log('✓ 欄寬已調整');
+      // 設定每欄的最小寬度
+      const columnWidths = [160, 120, 100, 100, 150, 80, 80]; // 時間, 領用人, 燈泡種類, 區域分類, 詳細位置, 數量, 總計
+      
+      for (let i = 0; i < columnWidths.length; i++) {
+        sheet.setColumnWidth(i + 1, columnWidths[i]);
+      }
+      
+      Logger.log('✓ 欄寬已設定');
     } catch (e) {
-      Logger.log('⚠️ 欄寬調整失敗（非關鍵）: ' + e.toString());
+      Logger.log('⚠️ 欄寬設定失敗（非關鍵）: ' + e.toString());
     }
 
     Logger.log('✓ 成功寫入 ' + writeCount + ' 筆記錄');
@@ -222,7 +241,14 @@ function createSummarySheet() {
     }
 
     // 格式化
-    summarySheet.autoResizeColumns(1, 4);
+    try {
+      summarySheet.setColumnWidth(1, 150);
+      summarySheet.setColumnWidth(2, 100);
+      summarySheet.setColumnWidth(3, 100);
+      summarySheet.setColumnWidth(4, 100);
+    } catch (e) {
+      Logger.log('⚠️ 統計報表欄寬設定失敗: ' + e.toString());
+    }
 
     Logger.log('✓ 統計報表建立完成');
     return '統計報表已建立';
