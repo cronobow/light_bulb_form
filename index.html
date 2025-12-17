@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>燈泡領用登記表</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <h1>燈泡領用登記表</h1>
+        
+        <form id="lightBulbForm">
+            <div class="form-group">
+                <label for="requester">領用人 *</label>
+                <input type="text" id="requester" name="requester" required>
+            </div>
+
+            <div class="form-group">
+                <label for="bulbType">燈泡種類 *</label>
+                <select id="bulbType" name="bulbType" required>
+                    <option value="">請選擇</option>
+                    <option value="LED-10W">LED 10W</option>
+                    <option value="LED-15W">LED 15W</option>
+                    <option value="LED-20W">LED 20W</option>
+                    <option value="省電燈泡-13W">省電燈泡 13W</option>
+                    <option value="省電燈泡-23W">省電燈泡 23W</option>
+                    <option value="其他">其他</option>
+                </select>
+            </div>
+
+            <div id="otherBulbTypeGroup" class="form-group" style="display: none;">
+                <label for="otherBulbType">請輸入燈泡種類</label>
+                <input type="text" id="otherBulbType" name="otherBulbType">
+            </div>
+
+            <div class="locations-section">
+                <h3>使用位置與數量</h3>
+                <div id="locationsList"></div>
+                <button type="button" id="addLocationBtn" class="btn btn-secondary">+ 新增位置</button>
+            </div>
+
+            <div class="summary">
+                <h3>總計：<span id="totalQuantity">0</span> 顆</h3>
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary">提交登記</button>
+                <button type="button" id="resetBtn" class="btn btn-secondary">重置</button>
+            </div>
+        </form>
+
+        <div id="successMessage" class="message success" style="display: none;">
+            ✓ 登記成功！資料已送出
+        </div>
+
+        <div id="errorMessage" class="message error" style="display: none;">
+            ✗ 提交失敗，請稍後再試
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
