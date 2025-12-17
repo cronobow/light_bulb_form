@@ -8,8 +8,7 @@ let locations = [];
 const requesterSelect = document.getElementById('requester');
 const requesterNameGroup = document.getElementById('requesterNameGroup');
 const requesterNameInput = document.getElementById('requesterName');
-const bulbTypeSelect = document.getElementById('bulbType');
-const otherBulbTypeGroup = document.getElementById('otherBulbTypeGroup');
+const bulbTypeRadios = document.querySelectorAll('input[name="bulbType"]');
 const locationsList = document.getElementById('locationsList');
 const addLocationBtn = document.getElementById('addLocationBtn');
 const form = document.getElementById('lightBulbForm');
@@ -30,16 +29,6 @@ requesterSelect.addEventListener('change', function() {
         requesterNameGroup.style.display = 'none';
         requesterNameInput.required = false;
         requesterNameInput.value = '';
-    }
-});
-
-bulbTypeSelect.addEventListener('change', function() {
-    if (this.value === '其他') {
-        otherBulbTypeGroup.style.display = 'block';
-        document.getElementById('otherBulbType').required = true;
-    } else {
-        otherBulbTypeGroup.style.display = 'none';
-        document.getElementById('otherBulbType').required = false;
     }
 });
 
@@ -135,11 +124,12 @@ async function handleSubmit(e) {
         requester = `${requester}-${requesterName}`;
     }
     
-    let bulbType = bulbTypeSelect.value;
-    
-    if (bulbType === '其他') {
-        bulbType = document.getElementById('otherBulbType').value;
+    const bulbTypeRadio = document.querySelector('input[name="bulbType"]:checked');
+    if (!bulbTypeRadio) {
+        alert('請選擇燈泡種類');
+        return;
     }
+    const bulbType = bulbTypeRadio.value;
     
     // Get all locations data
     const locationsData = [];
@@ -209,7 +199,6 @@ function resetForm() {
     form.reset();
     requesterNameGroup.style.display = 'none';
     requesterNameInput.required = false;
-    otherBulbTypeGroup.style.display = 'none';
     
     // Clear all locations
     locationsList.innerHTML = '';

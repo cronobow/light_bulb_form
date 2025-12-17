@@ -29,21 +29,23 @@
             </div>
 
             <div class="form-group">
-                <label for="bulbType">燈泡種類 *</label>
-                <select id="bulbType" name="bulbType" required>
-                    <option value="">請選擇</option>
-                    <option value="LED-10W">LED 10W</option>
-                    <option value="LED-15W">LED 15W</option>
-                    <option value="LED-20W">LED 20W</option>
-                    <option value="省電燈泡-13W">省電燈泡 13W</option>
-                    <option value="省電燈泡-23W">省電燈泡 23W</option>
-                    <option value="其他">其他</option>
-                </select>
-            </div>
-
-            <div id="otherBulbTypeGroup" class="form-group" style="display: none;">
-                <label for="otherBulbType">請輸入燈泡種類</label>
-                <input type="text" id="otherBulbType" name="otherBulbType">
+                <label>燈泡種類 *</label>
+                <div class="bulb-type-buttons">
+                    <label class="bulb-type-button">
+                        <input type="radio" name="bulbType" value="一般燈" required>
+                        <span class="button-content">
+                            <span class="button-icon">💡</span>
+                            <span class="button-text">一般燈</span>
+                        </span>
+                    </label>
+                    <label class="bulb-type-button">
+                        <input type="radio" name="bulbType" value="感應燈">
+                        <span class="button-content">
+                            <span class="button-icon">🔆</span>
+                            <span class="button-text">感應燈</span>
+                        </span>
+                    </label>
+                </div>
             </div>
 
             <div class="locations-section">

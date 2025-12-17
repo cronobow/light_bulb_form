@@ -96,6 +96,77 @@ select:focus {
     background: #f0f3ff;
 }
 
+.bulb-type-buttons {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 15px;
+}
+
+.bulb-type-button {
+    position: relative;
+    cursor: pointer;
+}
+
+.bulb-type-button input[type="radio"] {
+    position: absolute;
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.button-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 25px 20px;
+    border: 3px solid #ddd;
+    border-radius: 12px;
+    background: white;
+    transition: all 0.3s ease;
+    min-height: 120px;
+}
+
+.button-icon {
+    font-size: 48px;
+    margin-bottom: 10px;
+    transition: transform 0.3s ease;
+}
+
+.button-text {
+    font-size: 18px;
+    font-weight: 600;
+    color: #555;
+    transition: color 0.3s ease;
+}
+
+.bulb-type-button:hover .button-content {
+    border-color: #667eea;
+    background: #f8f9ff;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.2);
+}
+
+.bulb-type-button:hover .button-icon {
+    transform: scale(1.1);
+}
+
+.bulb-type-button input[type="radio"]:checked + .button-content {
+    border-color: #667eea;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+}
+
+.bulb-type-button input[type="radio"]:checked + .button-content .button-text {
+    color: white;
+    font-weight: bold;
+}
+
+.bulb-type-button input[type="radio"]:checked + .button-content .button-icon {
+    transform: scale(1.15);
+    filter: brightness(1.2);
+}
+
 .locations-section {
     margin: 30px 0;
     padding: 20px;
@@ -233,5 +304,21 @@ select:focus {
 
     .form-actions {
         flex-direction: column;
+    }
+
+    .bulb-type-buttons {
+        grid-template-columns: 1fr;
+    }
+
+    .button-content {
+        min-height: 100px;
+    }
+
+    .button-icon {
+        font-size: 40px;
+    }
+
+    .button-text {
+        font-size: 16px;
     }
 }
