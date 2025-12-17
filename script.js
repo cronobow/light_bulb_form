@@ -330,7 +330,7 @@ async function handleSubmit(e) {
     isSubmitting = true;
     submitBtn.disabled = true;
     submitBtn.classList.add('submitting');
-    submitBtn.textContent = '提交中';
+    submitBtn.textContent = '資料傳送中';
 
     // Send to Google Sheets
     try {
@@ -345,7 +345,7 @@ async function handleSubmit(e) {
             isSubmitting = false;
             submitBtn.disabled = false;
             submitBtn.classList.remove('submitting');
-            submitBtn.textContent = '提交登記';
+            submitBtn.textContent = '送出表單';
             return;
         }
 
@@ -382,7 +382,7 @@ async function handleSubmit(e) {
             isSubmitting = false;
             submitBtn.disabled = false;
             submitBtn.classList.remove('btn-success');
-            submitBtn.textContent = '提交登記';
+            submitBtn.textContent = '送出表單';
         }, 3000);
 
     } catch (error) {
@@ -394,10 +394,10 @@ async function handleSubmit(e) {
         isSubmitting = false;
         submitBtn.disabled = false;
         submitBtn.classList.remove('submitting');
-        submitBtn.textContent = '提交登記';
+        submitBtn.textContent = '送出表單';
         
         showError(
-            '❌ 提交失敗',
+            '❌ 送出失敗',
             `<strong>錯誤訊息：</strong><br>${error.message}<br><br>` +
             `<strong>可能原因：</strong><br>` +
             `• Google Apps Script URL 設定不正確<br>` +
