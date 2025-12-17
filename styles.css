@@ -119,22 +119,22 @@ select:focus {
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    padding: 25px 20px;
+    padding: 18px 15px;
     border: 3px solid #ddd;
-    border-radius: 12px;
+    border-radius: 10px;
     background: white;
     transition: all 0.3s ease;
-    min-height: 120px;
+    min-height: 90px;
 }
 
 .button-icon {
-    font-size: 48px;
-    margin-bottom: 10px;
+    font-size: 36px;
+    margin-bottom: 8px;
     transition: transform 0.3s ease;
 }
 
 .button-text {
-    font-size: 18px;
+    font-size: 16px;
     font-weight: 600;
     color: #555;
     transition: color 0.3s ease;
@@ -311,14 +311,14 @@ select:focus {
     }
 
     .button-content {
-        min-height: 100px;
+        min-height: 80px;
     }
 
     .button-icon {
-        font-size: 40px;
+        font-size: 32px;
     }
 
     .button-text {
-        font-size: 16px;
+        font-size: 15px;
     }
 }
