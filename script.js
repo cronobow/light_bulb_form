@@ -56,7 +56,7 @@ function addLocation() {
             </div>
             <div class="form-group">
                 <label for="${locationId}-quantity">數量 *</label>
-                <input type="number" id="${locationId}-quantity" name="quantity" min="1" required placeholder="1" onchange="updateTotal()">
+                <input type="number" id="${locationId}-quantity" name="quantity" min="1" value="1" required oninput="updateTotal()" onchange="updateTotal()">
             </div>
         </div>
     `;
