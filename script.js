@@ -1,5 +1,5 @@
 // Google Sheets Web App URL - 請替換成你的 Google Apps Script Web App URL
-const GOOGLE_SHEET_URL = 'https://script.google.com/macros/s/AKfycbyi6SSBbfKgBaQQE3wWBmwxYAdUGhcSxp3q64leez6EwCBbLBIw9veDyfiQE-T2ViZP/exec';
+const GOOGLE_SHEET_URL = 'https://script.google.com/macros/s/AKfycbwHF57JzhPwPK9zpzrs1NSt5exGuzxvpqhVawBixMrZo3ltnypA5KKLQi8DbIBIO3Yf/exec';
 
 let locationCounter = 0;
 let locations = [];
@@ -416,7 +416,7 @@ async function handleSubmit(e) {
         submitBtn.classList.add('btn-success');
         submitBtn.textContent = '✓ 已送出';
 
-        showSuccess('✓ 登記成功！資料已送出<br><small>※ 如果使用錯誤的網址，資料將不會被記錄</small>');
+        showSuccess('✓ 資料已送出');
 
         // 3 秒後重置表單
         setTimeout(() => {
