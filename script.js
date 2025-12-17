@@ -1,5 +1,5 @@
 // Google Sheets Web App URL - 請替換成你的 Google Apps Script Web App URL
-const GOOGLE_SHEET_URL = 'https://script.google.com/macros/s/AKfycbzyn4hAFtsjOmycvK9ZFiIHz-ueR31mGSOjCpj5a_FZ6ZbYgdNT5KVPIMFLi60VPvvN3g/exec';
+const GOOGLE_SHEET_URL = 'https://script.google.com/macros/s/AKfycbzUSXbJUoYa3AYpZgWSRRGGw-gFLtoBTzkpq9Im-cklpSicwvGoL6b2Cicba6eisg8T/exec';
 
 let locationCounter = 0;
 let locations = [];
@@ -238,7 +238,7 @@ async function handleSubmit(e) {
             alert('請先在 script.js 中設定 Google Sheets Web App URL\n\n參考 README.md 中的說明進行設定');
             return;
         }
-        
+
         console.log('Google Apps Script URL: ' + GOOGLE_SHEET_URL);
         console.log('開始發送請求...');
 
@@ -256,7 +256,7 @@ async function handleSubmit(e) {
         console.log('回應狀態碼: ' + response.status);
         console.log('✓ 資料已成功提交到 Google Sheets');
         console.log('========== 提交完成 ==========\n');
-        
+
         successMessage.style.display = 'block';
 
         // Reset form after successful submission
