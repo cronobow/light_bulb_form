@@ -295,6 +295,12 @@ select:focus {
     border: 1px solid #f5c6cb;
 }
 
+.message.warning {
+    background: #fff3cd;
+    color: #856404;
+    border: 1px solid #ffeeba;
+}
+
 @media (max-width: 768px) {
     .container {
         padding: 20px;

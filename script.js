@@ -1,5 +1,5 @@
 // Google Sheets Web App URL - 請替換成你的 Google Apps Script Web App URL
-const GOOGLE_SHEET_URL = 'https://script.google.com/macros/s/AKfycbzUSXbJUoYa3AYpZgWSRRGGw-gFLtoBTzkpq9Im-cklpSicwvGoL6b2Cicba6eisg8T/exec';
+const GOOGLE_SHEET_URL = 'https://script.google.com/macros/s/AKfycbzwqfih7NSHZIEjDHa8A8oIm4PaVeSrIM2bAO8SwtKxpq2DMljGIE7l3s3VlHJr0ZX4/exec';
 
 let locationCounter = 0;
 let locations = [];
@@ -16,6 +16,7 @@ const resetBtn = document.getElementById('resetBtn');
 const totalQuantitySpan = document.getElementById('totalQuantity');
 const successMessage = document.getElementById('successMessage');
 const errorMessage = document.getElementById('errorMessage');
+const warningMessage = document.getElementById('warningMessage');
 
 // Initialize with one location
 addLocation();
@@ -157,19 +158,65 @@ function updateTotal() {
     totalQuantitySpan.textContent = total;
 }
 
-// Handle form submission
+// 顯示成功訊息
+function showSuccess(message = '✓ 登記成功！資料已送出') {
+    document.getElementById('successText').textContent = message;
+    successMessage.style.display = 'block';
+    errorMessage.style.display = 'none';
+    warningMessage.style.display = 'none';
+}
+
+// 顯示錯誤訊息
+function showError(title = '✗ 提交失敗', details = '') {
+    document.getElementById('errorText').textContent = title;
+    const detailsDiv = document.getElementById('errorDetails');
+    if (details) {
+        detailsDiv.innerHTML = details;
+        detailsDiv.style.display = 'block';
+    } else {
+        detailsDiv.style.display = 'none';
+    }
+    errorMessage.style.display = 'block';
+    successMessage.style.display = 'none';
+    warningMessage.style.display = 'none';
+}
+
+// 顯示警告訊息
+function showWarning(title = '⚠️ 提醒', details = '') {
+    document.getElementById('warningText').textContent = title;
+    const detailsDiv = document.getElementById('warningDetails');
+    if (details) {
+        detailsDiv.innerHTML = details;
+        detailsDiv.style.display = 'block';
+    } else {
+        detailsDiv.style.display = 'none';
+    }
+    warningMessage.style.display = 'block';
+    successMessage.style.display = 'none';
+    errorMessage.style.display = 'none';
+}
+
+// 隱藏所有訊息
+function hideAllMessages() {
+    successMessage.style.display = 'none';
+    errorMessage.style.display = 'none';
+    warningMessage.style.display = 'none';
+}
 async function handleSubmit(e) {
     e.preventDefault();
 
     // Hide previous messages
-    successMessage.style.display = 'none';
-    errorMessage.style.display = 'none';
+    hideAllMessages();
+    
+    console.log('========== 開始提交表單 ==========');
+    console.log('時間: ' + new Date().toLocaleString('zh-TW', { timeZone: 'Asia/Taipei' }));
 
     // Get form data
     let requester = requesterSelect.value;
 
     if (!requester) {
-        alert('請選擇領用人');
+        console.error('❌ 領用人未選擇');
+        showError('❌ 必填欄位未完成', '<strong>領用人</strong> - 請選擇領用人');
         return;
     }
 
@@ -177,25 +224,30 @@ async function handleSubmit(e) {
     if (requester === '保全員' || requester === '機電廠商' || requester === '其他') {
         const requesterName = requesterNameInput.value.trim();
         if (!requesterName) {
-            alert('請填寫領用人姓名');
+            console.error('❌ 領用人姓名未填寫');
+            showError('❌ 必填欄位未完成', `<strong>${requester}姓名</strong> - 請填寫領用人姓名`);
             requesterNameInput.focus();
             return;
         }
         requester = `${requester}-${requesterName}`;
     }
+    console.log('領用人: ' + requester);
 
     const bulbTypeRadio = document.querySelector('input[name="bulbType"]:checked');
     if (!bulbTypeRadio) {
-        alert('請選擇燈泡種類');
+        console.error('❌ 燈泡種類未選擇');
+        showError('❌ 必填欄位未完成', '<strong>燈泡種類</strong> - 請選擇燈泡種類（一般燈/感應燈）');
         return;
     }
     const bulbType = bulbTypeRadio.value;
+    console.log('燈泡種類: ' + bulbType);
 
     // Get all locations data
     const locationsData = [];
     const locationItems = document.querySelectorAll('.location-item');
+    const validationErrors = [];
 
-    locationItems.forEach(item => {
+    locationItems.forEach((item, index) => {
         const categorySelect = item.querySelector('select[name="category"]');
         const locationSelect = item.querySelector('select[name="location"]');
         const quantityInput = item.querySelector('input[name="quantity"]');
@@ -203,21 +255,50 @@ async function handleSubmit(e) {
         if (categorySelect && locationSelect && quantityInput) {
             const category = categorySelect.value;
             const location = locationSelect.value;
+            const quantity = quantityInput.value.trim();
 
-            if (!category || !location) {
-                alert('請完整填寫所有位置資訊');
+            if (!category) {
+                validationErrors.push(`位置 ${index + 1}: 未選擇區域分類`);
+                return;
+            }
+            
+            if (!location) {
+                validationErrors.push(`位置 ${index + 1}: 未選擇詳細位置`);
+                return;
+            }
+            
+            if (!quantity || parseInt(quantity) < 1) {
+                validationErrors.push(`位置 ${index + 1}: 數量必須大於 0`);
                 return;
             }
 
             locationsData.push({
                 category: category,
                 location: location,
-                quantity: parseInt(quantityInput.value) || 0
+                quantity: parseInt(quantity)
             });
         }
     });
 
+    // 檢查驗證錯誤
+    if (validationErrors.length > 0) {
+        console.error('❌ 位置資訊驗證失敗:', validationErrors);
+        const errorHtml = '<strong>位置欄位有誤：</strong><ul style="margin: 8px 0 0 20px;">' + 
+                          validationErrors.map(e => '<li>' + e + '</li>').join('') + 
+                          '</ul>';
+        showError('❌ 必填欄位未完成', errorHtml);
+        return;
+    }
+
+    if (locationsData.length === 0) {
+        console.error('❌ 沒有新增任何位置');
+        showError('❌ 位置資訊不完整', '<strong>請至少新增一個使用位置</strong>');
+        return;
+    }
+
     const total = locationsData.reduce((sum, loc) => sum + loc.quantity, 0);
+    console.log('位置數量: ' + locationsData.length);
+    console.log('總計: ' + total);
 
     // Prepare data for Google Sheets
     const formData = {
@@ -235,7 +316,10 @@ async function handleSubmit(e) {
         // 檢查是否已設定 Google Sheets URL
         if (GOOGLE_SHEET_URL === 'YOUR_GOOGLE_APPS_SCRIPT_WEB_APP_URL_HERE') {
             console.error('❌ Google Sheets URL 尚未設定');
-            alert('請先在 script.js 中設定 Google Sheets Web App URL\n\n參考 README.md 中的說明進行設定');
+            showError(
+                '❌ 系統設定錯誤',
+                '<strong>Google Apps Script URL 尚未設定</strong><br>請參考 README.md 中的說明進行設定'
+            );
             return;
         }
 
@@ -244,7 +328,7 @@ async function handleSubmit(e) {
 
         const response = await fetch(GOOGLE_SHEET_URL, {
             method: 'POST',
-            mode: 'no-cors', // 使用 no-cors 模式
+            mode: 'no-cors',
             headers: {
                 'Content-Type': 'application/json',
             },
@@ -257,19 +341,28 @@ async function handleSubmit(e) {
         console.log('✓ 資料已成功提交到 Google Sheets');
         console.log('========== 提交完成 ==========\n');
 
-        successMessage.style.display = 'block';
+        showSuccess('✓ 登記成功！資料已送出');
 
         // Reset form after successful submission
         setTimeout(() => {
             resetForm();
-            successMessage.style.display = 'none';
+            hideAllMessages();
         }, 3000);
 
     } catch (error) {
         console.error('❌ 提交失敗: ' + error.toString());
         console.error('錯誤堆疊:', error.stack);
         console.log('========== 提交失敗 ==========\n');
-        errorMessage.style.display = 'block';
+        
+        showError(
+            '❌ 提交失敗',
+            `<strong>錯誤訊息：</strong><br>${error.message}<br><br>` +
+            `<strong>可能原因：</strong><br>` +
+            `• Google Apps Script URL 設定不正確<br>` +
+            `• Google Apps Script 未正確部署<br>` +
+            `• 網路連線中斷<br><br>` +
+            `請打開瀏覽器開發者工具 (F12) 的 Console 查看詳細錯誤訊息`
+        );
     }
 }
 
@@ -288,4 +381,5 @@ function resetForm() {
     addLocation();
 
     updateTotal();
+    hideAllMessages();
 }

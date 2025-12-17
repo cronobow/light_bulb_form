@@ -64,11 +64,17 @@
         </form>
 
         <div id="successMessage" class="message success" style="display: none;">
-            ✓ 登記成功！資料已送出
+            <div id="successText">✓ 登記成功！資料已送出</div>
         </div>
 
         <div id="errorMessage" class="message error" style="display: none;">
-            ✗ 提交失敗，請稍後再試
+            <div id="errorText">✗ 提交失敗，請稍後再試</div>
+            <div id="errorDetails" style="font-size: 14px; margin-top: 8px; text-align: left; padding: 10px; background: rgba(0,0,0,0.1); border-radius: 4px;"></div>
+        </div>
+
+        <div id="warningMessage" class="message warning" style="display: none;">
+            <div id="warningText">⚠️ 提醒</div>
+            <div id="warningDetails" style="font-size: 14px; margin-top: 8px; text-align: left; padding: 10px; background: rgba(0,0,0,0.1); border-radius: 4px;"></div>
         </div>
     </div>
 
