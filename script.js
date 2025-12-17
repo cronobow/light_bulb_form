@@ -1,5 +1,5 @@
 // Google Sheets Web App URL - 請替換成你的 Google Apps Script Web App URL
-const GOOGLE_SHEET_URL = 'YOUR_GOOGLE_APPS_SCRIPT_WEB_APP_URL_HERE';
+const GOOGLE_SHEET_URL = 'https://script.google.com/macros/s/AKfycbzyn4hAFtsjOmycvK9ZFiIHz-ueR31mGSOjCpj5a_FZ6ZbYgdNT5KVPIMFLi60VPvvN3g/exec';
 
 let locationCounter = 0;
 let locations = [];
@@ -54,7 +54,7 @@ const locationOptions = {
 function addLocation() {
     locationCounter++;
     const locationId = `location-${locationCounter}`;
-    
+
     const locationItem = document.createElement('div');
     locationItem.className = 'location-item';
     locationItem.id = locationId;
@@ -85,7 +85,7 @@ function addLocation() {
             </div>
         </div>
     `;
-    
+
     locationsList.appendChild(locationItem);
     locations.push(locationId);
     updateTotal();
@@ -96,33 +96,33 @@ function updateLocationOptions(locationId) {
     const categorySelect = document.getElementById(`${locationId}-category`);
     const locationSelect = document.getElementById(`${locationId}-location`);
     const selectedCategory = categorySelect.value;
-    
+
     // Clear previous options
     locationSelect.innerHTML = '';
-    
+
     if (!selectedCategory) {
         locationSelect.innerHTML = '<option value="">請先選擇區域分類</option>';
         locationSelect.disabled = true;
         return;
     }
-    
+
     locationSelect.disabled = false;
-    
+
     // Get options for selected category
     const options = locationOptions[selectedCategory] || [];
-    
+
     options.forEach(option => {
         const optionElement = document.createElement('option');
         optionElement.value = option;
         optionElement.textContent = option;
         locationSelect.appendChild(optionElement);
     });
-    
+
     // Auto select first option
     if (options.length > 0) {
         locationSelect.value = options[0];
     }
-    
+
     updateTotal();
 }
 
@@ -160,19 +160,19 @@ function updateTotal() {
 // Handle form submission
 async function handleSubmit(e) {
     e.preventDefault();
-    
+
     // Hide previous messages
     successMessage.style.display = 'none';
     errorMessage.style.display = 'none';
-    
+
     // Get form data
     let requester = requesterSelect.value;
-    
+
     if (!requester) {
         alert('請選擇領用人');
         return;
     }
-    
+
     // 如果選擇保全員、機電廠商或其他，使用輸入的姓名
     if (requester === '保全員' || requester === '機電廠商' || requester === '其他') {
         const requesterName = requesterNameInput.value.trim();
@@ -183,32 +183,32 @@ async function handleSubmit(e) {
         }
         requester = `${requester}-${requesterName}`;
     }
-    
+
     const bulbTypeRadio = document.querySelector('input[name="bulbType"]:checked');
     if (!bulbTypeRadio) {
         alert('請選擇燈泡種類');
         return;
     }
     const bulbType = bulbTypeRadio.value;
-    
+
     // Get all locations data
     const locationsData = [];
     const locationItems = document.querySelectorAll('.location-item');
-    
+
     locationItems.forEach(item => {
         const categorySelect = item.querySelector('select[name="category"]');
         const locationSelect = item.querySelector('select[name="location"]');
         const quantityInput = item.querySelector('input[name="quantity"]');
-        
+
         if (categorySelect && locationSelect && quantityInput) {
             const category = categorySelect.value;
             const location = locationSelect.value;
-            
+
             if (!category || !location) {
                 alert('請完整填寫所有位置資訊');
                 return;
             }
-            
+
             locationsData.push({
                 category: category,
                 location: location,
@@ -216,9 +216,9 @@ async function handleSubmit(e) {
             });
         }
     });
-    
+
     const total = locationsData.reduce((sum, loc) => sum + loc.quantity, 0);
-    
+
     // Prepare data for Google Sheets
     const formData = {
         timestamp: new Date().toLocaleString('zh-TW', { timeZone: 'Asia/Taipei' }),
@@ -227,18 +227,21 @@ async function handleSubmit(e) {
         locations: locationsData,
         totalQuantity: total
     };
-    
+
     console.log('Submitting data:', formData);
-    
+
     // Send to Google Sheets
     try {
         // 檢查是否已設定 Google Sheets URL
         if (GOOGLE_SHEET_URL === 'YOUR_GOOGLE_APPS_SCRIPT_WEB_APP_URL_HERE') {
-            console.warn('Google Sheets URL 尚未設定');
+            console.error('❌ Google Sheets URL 尚未設定');
             alert('請先在 script.js 中設定 Google Sheets Web App URL\n\n參考 README.md 中的說明進行設定');
             return;
         }
         
+        console.log('Google Apps Script URL: ' + GOOGLE_SHEET_URL);
+        console.log('開始發送請求...');
+
         const response = await fetch(GOOGLE_SHEET_URL, {
             method: 'POST',
             mode: 'no-cors', // 使用 no-cors 模式
@@ -247,19 +250,25 @@ async function handleSubmit(e) {
             },
             body: JSON.stringify(formData)
         });
-        
+
         // 因為使用 no-cors，無法取得回應狀態，假設成功
-        console.log('Data sent successfully');
-        successMessage.style.display = 'block';
+        console.log('✓ 請求已發送（使用 no-cors 模式）');
+        console.log('回應狀態碼: ' + response.status);
+        console.log('✓ 資料已成功提交到 Google Sheets');
+        console.log('========== 提交完成 ==========\n');
         
+        successMessage.style.display = 'block';
+
         // Reset form after successful submission
         setTimeout(() => {
             resetForm();
             successMessage.style.display = 'none';
         }, 3000);
-        
+
     } catch (error) {
-        console.error('Error submitting data:', error);
+        console.error('❌ 提交失敗: ' + error.toString());
+        console.error('錯誤堆疊:', error.stack);
+        console.log('========== 提交失敗 ==========\n');
         errorMessage.style.display = 'block';
     }
 }
@@ -269,14 +278,14 @@ function resetForm() {
     form.reset();
     requesterNameGroup.style.display = 'none';
     requesterNameInput.required = false;
-    
+
     // Clear all locations
     locationsList.innerHTML = '';
     locations = [];
     locationCounter = 0;
-    
+
     // Add one location
     addLocation();
-    
+
     updateTotal();
 }
