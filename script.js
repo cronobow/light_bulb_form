@@ -5,7 +5,7 @@ let locationCounter = 0;
 let locations = [];
 
 // DOM Elements
-const requesterRadios = document.querySelectorAll('input[name="requester"]');
+const requesterSelect = document.getElementById('requester');
 const requesterNameGroup = document.getElementById('requesterNameGroup');
 const requesterNameInput = document.getElementById('requesterName');
 const bulbTypeSelect = document.getElementById('bulbType');
@@ -22,17 +22,15 @@ const errorMessage = document.getElementById('errorMessage');
 addLocation();
 
 // Event Listeners
-requesterRadios.forEach(radio => {
-    radio.addEventListener('change', function() {
-        if (this.value === '保全員' || this.value === '機電廠商' || this.value === '其他') {
-            requesterNameGroup.style.display = 'block';
-            requesterNameInput.required = true;
-        } else {
-            requesterNameGroup.style.display = 'none';
-            requesterNameInput.required = false;
-            requesterNameInput.value = '';
-        }
-    });
+requesterSelect.addEventListener('change', function() {
+    if (this.value === '保全員' || this.value === '機電廠商' || this.value === '其他') {
+        requesterNameGroup.style.display = 'block';
+        requesterNameInput.required = true;
+    } else {
+        requesterNameGroup.style.display = 'none';
+        requesterNameInput.required = false;
+        requesterNameInput.value = '';
+    }
 });
 
 bulbTypeSelect.addEventListener('change', function() {
@@ -119,13 +117,12 @@ async function handleSubmit(e) {
     errorMessage.style.display = 'none';
     
     // Get form data
-    const requesterRadio = document.querySelector('input[name="requester"]:checked');
-    if (!requesterRadio) {
+    let requester = requesterSelect.value;
+    
+    if (!requester) {
         alert('請選擇領用人');
         return;
     }
-    
-    let requester = requesterRadio.value;
     
     // 如果選擇保全員、機電廠商或其他，使用輸入的姓名
     if (requester === '保全員' || requester === '機電廠商' || requester === '其他') {
