@@ -3,6 +3,7 @@ const GOOGLE_SHEET_URL = 'https://script.google.com/macros/s/AKfycbzwqfih7NSHZIE
 
 let locationCounter = 0;
 let locations = [];
+let isSubmitting = false; // 防抖標記
 
 // DOM Elements
 const requesterSelect = document.getElementById('requester');
@@ -12,7 +13,7 @@ const bulbTypeRadios = document.querySelectorAll('input[name="bulbType"]');
 const locationsList = document.getElementById('locationsList');
 const addLocationBtn = document.getElementById('addLocationBtn');
 const form = document.getElementById('lightBulbForm');
-const resetBtn = document.getElementById('resetBtn');
+const submitBtn = document.getElementById('submitBtn');
 const totalQuantitySpan = document.getElementById('totalQuantity');
 const successMessage = document.getElementById('successMessage');
 const errorMessage = document.getElementById('errorMessage');
@@ -34,7 +35,6 @@ requesterSelect.addEventListener('change', function() {
 });
 
 addLocationBtn.addEventListener('click', addLocation);
-resetBtn.addEventListener('click', resetForm);
 form.addEventListener('submit', handleSubmit);
 
 // 位置分類的對應選項
@@ -205,6 +205,12 @@ function hideAllMessages() {
 async function handleSubmit(e) {
     e.preventDefault();
 
+    // 防止重複提交
+    if (isSubmitting) {
+        console.warn('⚠️ 已有提交在進行中，請稍候');
+        return;
+    }
+
     // Hide previous messages
     hideAllMessages();
     
@@ -320,6 +326,12 @@ async function handleSubmit(e) {
 
     console.log('Submitting data:', formData);
 
+    // 設置提交狀態和動畫
+    isSubmitting = true;
+    submitBtn.disabled = true;
+    submitBtn.classList.add('submitting');
+    submitBtn.textContent = '提交中';
+
     // Send to Google Sheets
     try {
         // 檢查是否已設定 Google Sheets URL
@@ -329,6 +341,11 @@ async function handleSubmit(e) {
                 '❌ 系統設定錯誤',
                 '<strong>Google Apps Script URL 尚未設定</strong><br>請參考 README.md 中的說明進行設定'
             );
+            // 重置提交狀態
+            isSubmitting = false;
+            submitBtn.disabled = false;
+            submitBtn.classList.remove('submitting');
+            submitBtn.textContent = '提交登記';
             return;
         }
 
@@ -350,18 +367,34 @@ async function handleSubmit(e) {
         console.log('✓ 資料已成功提交到 Google Sheets');
         console.log('========== 提交完成 ==========\n');
 
+        // 按鈕變綠色動畫
+        submitBtn.classList.remove('submitting');
+        submitBtn.classList.add('btn-success');
+        submitBtn.textContent = '✓ 已送出';
+        
         showSuccess('✓ 登記成功！資料已送出');
 
-        // Reset form after successful submission
+        // 3 秒後重置表單
         setTimeout(() => {
             resetForm();
             hideAllMessages();
+            // 重置提交狀態和按鈕
+            isSubmitting = false;
+            submitBtn.disabled = false;
+            submitBtn.classList.remove('btn-success');
+            submitBtn.textContent = '提交登記';
         }, 3000);
 
     } catch (error) {
         console.error('❌ 提交失敗: ' + error.toString());
         console.error('錯誤堆疊:', error.stack);
         console.log('========== 提交失敗 ==========\n');
+        
+        // 重置提交狀態
+        isSubmitting = false;
+        submitBtn.disabled = false;
+        submitBtn.classList.remove('submitting');
+        submitBtn.textContent = '提交登記';
         
         showError(
             '❌ 提交失敗',
