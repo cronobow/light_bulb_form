@@ -115,25 +115,38 @@ Google Apps Script URL: https://script.google.com/macros/s/AKfycbz...
 
 1. **打開 debug.html**
    ```
-   /Users/max/maxlab/forms/debug.html
+   用瀏覽器開啟：/Users/max/maxlab/forms/debug.html
    ```
 
-2. **設定 Web App URL**
-   - 在「設定 Web App URL」區域輸入你的 Google Apps Script URL
+2. **獲取你的 Google Apps Script Web App URL**
+   - 打開 Google Sheets
+   - 點選「擴充功能」→「Apps Script」
+   - 點選「部署」→「管理部署作業」
+   - 複製「URL」欄位的完整 URL（以 `/exec` 結尾）
+
+3. **設定 Web App URL**
+   - 在 debug.html 的「設定 Web App URL」區域輸入你的 URL
    - 點選「保存 URL」
 
-3. **測試連線**
+4. **測試連線**
    - 點選「檢查連線」
    - 應該看到「連線成功」
+   - 如果失敗，檢查 URL 是否完整正確
 
-4. **發送測試資料**
+5. **檢查前端設定**
+   - 點選「檢查前端設定」
+   - 應該看到「✓ 已設定」
+   - 如果看到「⚠️ 找不到 GOOGLE_SHEET_URL 變數」是正常的（因為在 debug.html 中），這不影響表單使用
+
+6. **發送測試資料**
    - 點選「載入範例資料」
    - 點選「發送測試請求」
-   - 檢查是否收到成功訊息
+   - 檢查是否看到「✓ 請求已發送」
 
-5. **查看後端日誌**
-   - 打開 Google Apps Script 執行記錄
-   - 查看是否有對應的日誌
+7. **查看後端日誌**
+   - 打開 Google Apps Script 編輯器
+   - 點選「執行記錄」
+   - 查看最新的執行記錄是否成功
 
 ---
 

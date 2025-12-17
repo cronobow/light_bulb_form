@@ -221,6 +221,15 @@
         <div class="instructions">
             <h3>📖 如何查看 Google Apps Script 的執行日誌</h3>
             <ol>
+                <li><strong>首先，獲取你的 Web App URL（重要！）</strong>
+                    <ul>
+                        <li>打開你的 Google Sheets</li>
+                        <li>點選「擴充功能」→「Apps Script」</li>
+                        <li>點選「部署」→「管理部署作業」</li>
+                        <li>複製「URL」欄位的完整連結（以 <code>/exec</code> 結尾）</li>
+                        <li>貼到下方「設定 Web App URL」區域</li>
+                    </ul>
+                </li>
                 <li><strong>方法 1：直接在 Google Apps Script 編輯器查看</strong>
                     <ul>
                         <li>開啟你的 Google Apps Script 編輯器</li>
@@ -434,13 +443,32 @@
 
             // 檢查 script.js 中的設定
             try {
+                // 嘗試從 HTML 頁面的 script 標籤取得 GOOGLE_SHEET_URL
+                let frontendUrl = null;
+                
+                // 方法 1: 直接檢查全局變數
                 if (typeof GOOGLE_SHEET_URL !== 'undefined') {
-                    const isConfigured = GOOGLE_SHEET_URL !== 'YOUR_GOOGLE_APPS_SCRIPT_WEB_APP_URL_HERE';
+                    frontendUrl = GOOGLE_SHEET_URL;
+                }
+                
+                // 方法 2: 如果在 debug.html 中無法存取，從本地存儲讀取
+                if (!frontendUrl) {
+                    const savedUrl = localStorage.getItem('webAppUrl');
+                    if (savedUrl) {
+                        frontendUrl = savedUrl;
+                        html += '<div class="log-line"><span class="log-info">💡 從本地儲存讀取 URL</span></div>';
+                    }
+                }
+                
+                if (frontendUrl) {
+                    const isConfigured = frontendUrl !== 'YOUR_GOOGLE_APPS_SCRIPT_WEB_APP_URL_HERE';
                     const status = isConfigured ? '✓ 已設定' : '❌ 未設定';
                     const color = isConfigured ? 'log-success' : 'log-error';
-                    html += `<div class="log-line"><span class="${color}">${status}</span> - 前端 Web App URL: ${GOOGLE_SHEET_URL}</div>`;
+                    html += `<div class="log-line"><span class="${color}">${status}</span> - 前端 Web App URL</div>`;
+                    html += `<div class="log-line"><span class="log-data">URL: ${frontendUrl}</span></div>`;
                 } else {
-                    html += '<div class="log-line"><span class="log-error">❌ 找不到 GOOGLE_SHEET_URL 變數</span></div>';
+                    html += '<div class="log-line"><span class="log-warning">⚠️ 找不到 GOOGLE_SHEET_URL 變數</span></div>';
+                    html += '<div class="log-line"><span class="log-info">💡 建議：在 debug.html 的「設定 Web App URL」手動輸入你的 URL</span></div>';
                 }
             } catch (e) {
                 html += `<div class="log-line"><span class="log-error">❌ 檢查失敗: ${e.message}</span></div>`;
