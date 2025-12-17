@@ -97,14 +97,14 @@ select:focus {
 }
 
 .bulb-type-buttons {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
+    display: flex;
     gap: 15px;
 }
 
 .bulb-type-button {
     position: relative;
     cursor: pointer;
+    flex: 1;
 }
 
 .bulb-type-button input[type="radio"] {
@@ -307,7 +307,7 @@ select:focus {
     }
 
     .bulb-type-buttons {
-        grid-template-columns: 1fr;
+        flex-direction: column;
     }
 
     .button-content {
